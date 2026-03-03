@@ -1,0 +1,51 @@
+// Joi validation schemas
+const Joi = require("joi");
+
+const listingSchema = Joi.object({
+    title: Joi.string().required().min(3).max(100),
+    description: Joi.string().required().min(10).max(2000),
+    price: Joi.number().required().min(0),
+    location: Joi.string().required(),
+    country: Joi.string().default("India"),
+    roomType: Joi.string().valid("single", "shared", "pg", "apartment", "hostel"),
+    amenities: Joi.array().items(
+        Joi.string().valid("wifi", "ac", "food", "laundry", "parking", "power_backup", "water", "furnished", "gym", "security")
+    ),
+    maxOccupancy: Joi.number().min(1).default(1),
+    availableRooms: Joi.number().min(0).default(1),
+    nearbyCollege: Joi.string().allow(""),
+    distanceFromCollege: Joi.string().allow(""),
+});
+
+const reviewSchema = Joi.object({
+    comment: Joi.string().required().min(3).max(500),
+    rating: Joi.number().required().min(1).max(5),
+});
+
+const bookingSchema = Joi.object({
+    message: Joi.string().allow("").max(500),
+    moveInDate: Joi.date(),
+    duration: Joi.string().allow(""),
+    contactPhone: Joi.string().required().pattern(/^[6-9]\d{9}$/),
+});
+
+// Validation middleware factory
+const validate = (schema) => {
+    return (req, res, next) => {
+        const { error } = schema.validate(req.body, { abortEarly: false });
+        if (error) {
+            const messages = error.details.map((el) => el.message);
+            return res.status(400).json({ error: "Validation failed", details: messages });
+        }
+        next();
+    };
+};
+
+module.exports = {
+    validateListing: validate(listingSchema),
+    validateReview: validate(reviewSchema),
+    validateBooking: validate(bookingSchema),
+    listingSchema,
+    reviewSchema,
+    bookingSchema,
+};

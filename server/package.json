@@ -1,0 +1,30 @@
+{
+  "name": "campuscrib-server",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["college", "accommodation", "rooms", "pg"],
+  "author": "Raza Alam",
+  "license": "ISC",
+  "description": "CampusCrib - Backend API for college accommodation platform",
+  "dependencies": {
+    "cloudinary": "^2.9.0",
+    "connect-mongo": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "firebase-admin": "^13.7.0",
+    "joi": "^18.0.2",
+    "mongoose": "^9.2.3",
+    "multer": "^2.1.0",
+    "multer-storage-cloudinary": "^2.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

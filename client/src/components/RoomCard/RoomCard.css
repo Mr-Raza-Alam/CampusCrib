@@ -1,0 +1,153 @@
+/* RoomCard Styles */
+.room-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.room-card-img-wrap {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.room-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.room-card:hover .room-card-img {
+    transform: scale(1.08);
+}
+
+.room-card-type {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: var(--green-600);
+    color: #fff;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.room-card-urgent {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--danger);
+    color: #fff;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.room-card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.room-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.room-card-location {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+}
+
+.room-card-college {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.college-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--green-700);
+}
+
+.college-dist {
+    font-size: 0.72rem;
+    background: var(--green-100);
+    color: var(--green-800);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+}
+
+.room-card-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+
+.amenity-tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--gray-100);
+    color: var(--gray-600);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.amenity-more {
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+.room-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gray-100);
+}
+
+.room-card-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+
+.room-card-price strong {
+    font-size: 1.15rem;
+    color: var(--green-700);
+}
+
+.room-card-price small {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+}
+
+.room-card-view {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--green-600);
+    transition: color 0.2s;
+}
+
+.room-card:hover .room-card-view {
+    color: var(--green-800);
+}
