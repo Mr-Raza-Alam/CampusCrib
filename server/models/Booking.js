@@ -20,7 +20,7 @@ const bookingSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ["pending", "accepted", "rejected", "cancelled"],
+        enum: ["pending", "accepted", "payment_confirmed", "confirmed", "rejected", "cancelled"],
         default: "pending",
     },
     message: {
@@ -37,6 +37,9 @@ const bookingSchema = new Schema({
     contactPhone: {
         type: String,
         required: [true, "Contact number is required for booking"],
+    },
+    paymentConfirmedAt: {
+        type: Date, // When student clicked "I Have Paid"
     },
 }, {
     timestamps: true,

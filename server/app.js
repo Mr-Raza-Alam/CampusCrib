@@ -13,7 +13,15 @@ connectDB();
 
 // Middleware
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173", // React dev server
+    origin: function (origin, callback) {
+        // Allow requests from any localhost port (dev) or configured CLIENT_URL (prod)
+        const clientUrl = process.env.CLIENT_URL;
+        if (!origin || (origin && origin.match(/^http:\/\/localhost:\d+$/)) || origin === clientUrl) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
 }));
 app.use(express.json());

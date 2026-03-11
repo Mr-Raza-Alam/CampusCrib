@@ -59,13 +59,21 @@ router.put("/profile", verifyToken, async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const { name, phone, collegeName, userType, businessName, businessAddress } = req.body;
+        const { name, phone, collegeName, userType, businessName, businessAddress, paymentInfo } = req.body;
         if (name) user.name = name;
         if (phone) user.phone = phone;
         if (collegeName) user.collegeName = collegeName;
         if (userType) user.userType = userType;
         if (businessName) user.businessName = businessName;
         if (businessAddress) user.businessAddress = businessAddress;
+
+        // Owner payment info
+        if (paymentInfo && user.role === "owner") {
+            user.paymentInfo = {
+                ...user.paymentInfo?.toObject?.() || {},
+                ...paymentInfo,
+            };
+        }
 
         await user.save();
         res.json({ user, message: "Profile updated successfully" });

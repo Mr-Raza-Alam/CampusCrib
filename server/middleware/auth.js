@@ -52,7 +52,7 @@ const isAdmin = (req, res, next) => {
 };
 
 const isOwner = (req, res, next) => {
-    if (!req.user || req.user.role !== "owner") {
+    if (!req.user || (req.user.role !== "owner" && req.user.role !== "admin")) {
         return res.status(403).json({ error: "Property owner access required" });
     }
     next();

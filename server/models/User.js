@@ -63,6 +63,14 @@ const userSchema = new Schema({
         enum: ["student", "parent", "faculty", "other"],
         default: "student",
     },
+    // Owner payment info — revealed to students after booking acceptance
+    paymentInfo: {
+        upiId: { type: String, trim: true, default: "" },
+        bankName: { type: String, trim: true, default: "" },
+        accountNumber: { type: String, trim: true, default: "" },
+        ifscCode: { type: String, trim: true, default: "" },
+        qrCodeImage: { type: String, default: "" },
+    },
 }, {
     timestamps: true, // adds createdAt and updatedAt automatically
 });

@@ -2,14 +2,14 @@
 const express = require("express");
 const router = express.Router();
 const Listing = require("../models/Listing");
-const { isAuthenticated, isVerifiedOwner } = require("../middleware/auth");
+const { isAuthenticated, isOwner, isVerifiedOwner } = require("../middleware/auth");
 const { validateListing } = require("../middleware/validate");
 const { upload } = require("../config/cloudinary");
 
 // GET /api/listings — Get all approved listings (public)
 router.get("/", async (req, res) => {
     try {
-        const { search, roomType, minPrice, maxPrice, amenities } = req.query;
+        const { search, roomType, minPrice, maxPrice, amenities, sort } = req.query;
 
         // Build filter — only show approved & available listings to public
         const filter = { approvalStatus: "approved", status: { $ne: "inactive" } };
@@ -33,8 +33,25 @@ router.get("/", async (req, res) => {
             filter.amenities = { $all: amenityList };
         }
 
+        // Sort options
+        let sortOption = { createdAt: -1 }; // default: newest
+        if (sort === "price_asc") sortOption = { price: 1 };
+        else if (sort === "price_desc") sortOption = { price: -1 };
+
         const listings = await Listing.find(filter)
             .populate("owner", "name profileImage businessName")
+            .sort(sortOption);
+
+        res.json({ listings, count: listings.length });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/listings/my — Get current owner's listings (auth required)
+router.get("/my", isAuthenticated, async (req, res) => {
+    try {
+        const listings = await Listing.find({ owner: req.user._id })
             .sort({ createdAt: -1 });
 
         res.json({ listings, count: listings.length });
@@ -62,13 +79,21 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// POST /api/listings — Create new listing (verified owner only)
-router.post("/", isAuthenticated, isVerifiedOwner, upload.single("image"), validateListing, async (req, res) => {
+// POST /api/listings — Create new listing (verified owner only, goes live immediately)
+router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
+    upload.single("image")(req, res, (err) => {
+        if (err) {
+            console.error("Multer/Cloudinary upload error:", err);
+            return res.status(400).json({ error: "Image upload failed: " + err.message });
+        }
+        next();
+    });
+}, validateListing, async (req, res) => {
     try {
         const newListing = new Listing({
             ...req.body,
             owner: req.user._id,
-            approvalStatus: "pending", // Admin must approve
+            approvalStatus: "approved", // Verified owners' listings go live immediately
             geometry: {
                 type: "Point",
                 coordinates: req.body.coordinates
@@ -87,6 +112,10 @@ router.post("/", isAuthenticated, isVerifiedOwner, upload.single("image"), valid
         await newListing.save();
         res.status(201).json({ listing: newListing, message: "Listing created! Waiting for admin approval." });
     } catch (error) {
+        console.error("Create listing error:", error.name, error.message);
+        if (error.errors) {
+            console.error("Validation errors:", Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`));
+        }
         res.status(500).json({ error: error.message });
     }
 });

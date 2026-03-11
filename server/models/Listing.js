@@ -33,12 +33,11 @@ const listingSchema = new Schema({
     // New fields for college accommodation
     roomType: {
         type: String,
-        enum: ["single", "shared", "pg", "apartment", "hostel"],
-        default: "single",
+        enum: ["Single", "Shared", "PG", "Apartment", "Hostel", "single", "shared", "pg", "apartment", "hostel"],
+        default: "Single",
     },
     amenities: [{
         type: String,
-        enum: ["wifi", "ac", "food", "laundry", "parking", "power_backup", "water", "furnished", "gym", "security"],
     }],
     maxOccupancy: {
         type: Number,
@@ -66,6 +65,23 @@ const listingSchema = new Schema({
     },
     distanceFromCollege: {
         type: String, // e.g., "500m", "1.2km"
+    },
+    // Property rules & deposit (transparency for students)
+    securityDeposit: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    refundPolicy: {
+        type: String,
+        default: "No refund policy specified",
+    },
+    propertyRules: [{
+        type: String,
+    }],
+    customRules: {
+        type: String,
+        trim: true,
     },
     // Relations
     owner: {
