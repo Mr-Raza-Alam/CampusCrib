@@ -1,9 +1,11 @@
-// Room Detail page — full listing view with reviews, amenities, owner info
+// Room Detail page — full listing view with reviews, amenities, owner info, and map
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getListing, createBooking } from "../../services/api";
+import { getListing, createBooking, addReview } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import MapView from "../../components/MapView/MapView";
 import "./RoomDetail.css";
+import "../Student/Student.css";
 
 const amenityLabels = {
     wifi: "WiFi", ac: "AC", food: "Meals Included", laundry: "Laundry",
@@ -11,13 +13,26 @@ const amenityLabels = {
     furnished: "Fully Furnished", gym: "Gym Access", security: "Security/CCTV",
 };
 
+const ruleLabels = {
+    no_smoking: "No smoking on premises", no_alcohol: "No alcohol allowed",
+    gate_closing: "Gate closes at 10:30 PM", no_guests_late: "No guests after 10 PM",
+    cleanliness: "Maintain cleanliness in common areas", id_required: "Valid college ID required",
+    noise_curfew: "No loud noise after 10 PM", no_pets: "No pets allowed",
+    no_cooking: "No cooking in rooms", damage_charge: "Property damage charges apply",
+};
+
 const RoomDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, userProfile } = useAuth();
     const [listing, setListing] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [bookingStatus, setBookingStatus] = useState(""); // "success" | "error" | ""
+    const [bookingStatus, setBookingStatus] = useState("");
+    // Review form state
+    const [reviewRating, setReviewRating] = useState(0);
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+    const [reviewMessage, setReviewMessage] = useState("");
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -32,6 +47,30 @@ const RoomDetail = () => {
         };
         fetchListing();
     }, [id]);
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (reviewRating === 0) return setReviewMessage("Please select a star rating.");
+        if (reviewComment.length < 3) return setReviewMessage("Review must be at least 3 characters.");
+
+        setReviewSubmitting(true);
+        setReviewMessage("");
+        try {
+            const res = await addReview(id, { rating: reviewRating, comment: reviewComment });
+            // Add new review to listing immediately
+            setListing((prev) => ({
+                ...prev,
+                reviews: [...(prev.reviews || []), res.data.review],
+            }));
+            setReviewRating(0);
+            setReviewComment("");
+            setReviewMessage("Review submitted!");
+        } catch (err) {
+            setReviewMessage(err.response?.data?.error || "Failed to submit review.");
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
 
     if (loading) {
         return <div className="spinner-wrapper"><div className="spinner"></div></div>;
@@ -75,7 +114,7 @@ const RoomDetail = () => {
                 </div>
             </div>
 
-            <div className="container detail-content">
+            <div className="detail-content">
                 <div className="detail-grid">
                     {/* Left Column — Details */}
                     <div className="detail-main">
@@ -122,6 +161,65 @@ const RoomDetail = () => {
                             </section>
                         )}
 
+                        {/* Property Rules & Security Deposit */}
+                        {(listing.propertyRules?.length > 0 || listing.customRules || listing.securityDeposit > 0) && (
+                            <section className="detail-section rules-deposit-section">
+                                <h2>📋 Property Rules & Deposit</h2>
+
+                                {listing.propertyRules?.length > 0 && (
+                                    <div className="rules-list">
+                                        {listing.propertyRules.map((rule) => (
+                                            <div key={rule} className="rule-item">
+                                                <span className="rule-dot">•</span>
+                                                <span>{ruleLabels[rule] || rule}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {listing.customRules && (
+                                    <div className="custom-rules-box">
+                                        <strong>Additional Rules:</strong>
+                                        <p>{listing.customRules}</p>
+                                    </div>
+                                )}
+
+                                <div className="deposit-info-grid">
+                                    {listing.securityDeposit > 0 && (
+                                        <div className="deposit-info-card">
+                                            <span className="deposit-icon">💰</span>
+                                            <div>
+                                                <strong>Security Deposit</strong>
+                                                <span>₹{listing.securityDeposit?.toLocaleString("en-IN")}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {listing.refundPolicy && listing.refundPolicy !== "No refund policy specified" && (
+                                        <div className="deposit-info-card">
+                                            <span className="deposit-icon">📌</span>
+                                            <div>
+                                                <strong>Refund Policy</strong>
+                                                <span>{listing.refundPolicy}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Location Map */}
+                        {listing.geometry?.coordinates && (
+                            <section className="detail-section">
+                                <h2>📍 Location</h2>
+                                <MapView
+                                    listings={[listing]}
+                                    center={listing.geometry.coordinates}
+                                    zoom={14}
+                                    singleMarker={true}
+                                />
+                            </section>
+                        )}
+
                         {/* Reviews */}
                         <section className="detail-section">
                             <h2>
@@ -159,6 +257,43 @@ const RoomDetail = () => {
                             ) : (
                                 <p className="no-reviews">No reviews yet. Be the first to review!</p>
                             )}
+
+                            {/* Review Form — logged in users only */}
+                            {currentUser && userProfile?.role === "student" && (
+                                <div className="review-form-section">
+                                    <h3>Write a Review</h3>
+                                    {reviewMessage && (
+                                        <div className={reviewMessage.includes("submitted") ? "form-success" : "form-error"}>
+                                            {reviewMessage}
+                                        </div>
+                                    )}
+                                    <form onSubmit={handleReviewSubmit}>
+                                        <div className="star-input">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    className={`star-btn ${star <= reviewRating ? "filled" : ""}`}
+                                                    onClick={() => setReviewRating(star)}
+                                                >
+                                                    ★
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <textarea
+                                            className="review-textarea"
+                                            placeholder="Share your experience about this room..."
+                                            value={reviewComment}
+                                            onChange={(e) => setReviewComment(e.target.value)}
+                                        />
+                                        <div className="review-submit-row">
+                                            <button type="submit" className="btn btn-primary" disabled={reviewSubmitting}>
+                                                {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
                         </section>
                     </div>
 
@@ -190,22 +325,56 @@ const RoomDetail = () => {
                             {currentUser ? (
                                 <>
                                     {bookingStatus === "success" ? (
-                                        <div className="booking-success">Booking request sent successfully!</div>
+                                        <div className="booking-success">✅ Booking request sent! The owner will respond soon.</div>
                                     ) : (
-                                        <button
-                                            className="btn btn-primary btn-full"
-                                            onClick={async () => {
-                                                try {
-                                                    await createBooking(listing._id, { message: "I am interested in this room." });
-                                                    setBookingStatus("success");
-                                                } catch (err) {
-                                                    setBookingStatus("error");
-                                                    alert(err.response?.data?.message || "Could not send booking request");
-                                                }
-                                            }}
-                                        >
-                                            Send Booking Request
-                                        </button>
+                                        <form onSubmit={async (e) => {
+                                            e.preventDefault();
+                                            try {
+                                                const formData = new FormData(e.target);
+                                                await createBooking(listing._id, {
+                                                    message: formData.get("message") || "I am interested in this room.",
+                                                    contactPhone: formData.get("contactPhone") || "",
+                                                });
+                                                setBookingStatus("success");
+                                            } catch (err) {
+                                                const errMsg = err.response?.data?.error || err.response?.data?.details?.join(", ") || "Could not send booking request";
+                                                alert(errMsg);
+                                            }
+                                        }}>
+                                            <div style={{ marginBottom: "0.75rem" }}>
+                                                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--gray-700)", display: "block", marginBottom: "0.3rem" }}>
+                                                    Message to Owner
+                                                </label>
+                                                <textarea
+                                                    name="message"
+                                                    placeholder="Hi, I am interested in this room..."
+                                                    defaultValue="I am interested in this room."
+                                                    style={{
+                                                        width: "100%", padding: "0.5rem", borderRadius: "8px",
+                                                        border: "1px solid var(--gray-200)", fontFamily: "var(--font-family)",
+                                                        fontSize: "0.85rem", resize: "vertical", minHeight: "60px", boxSizing: "border-box",
+                                                    }}
+                                                />
+                                            </div>
+                                            <div style={{ marginBottom: "0.75rem" }}>
+                                                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--gray-700)", display: "block", marginBottom: "0.3rem" }}>
+                                                    Phone (optional)
+                                                </label>
+                                                <input
+                                                    name="contactPhone"
+                                                    type="tel"
+                                                    placeholder="10‑digit mobile"
+                                                    style={{
+                                                        width: "100%", padding: "0.5rem", borderRadius: "8px",
+                                                        border: "1px solid var(--gray-200)", fontFamily: "var(--font-family)",
+                                                        fontSize: "0.85rem", boxSizing: "border-box",
+                                                    }}
+                                                />
+                                            </div>
+                                            <button type="submit" className="btn btn-primary btn-full">
+                                                Send Booking Request
+                                            </button>
+                                        </form>
                                     )}
                                 </>
                             ) : (

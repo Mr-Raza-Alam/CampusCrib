@@ -1,0 +1,132 @@
+/* MapView Styles */
+
+.map-container {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+
+.map-full {
+    height: 520px;
+}
+
+.map-mini {
+    height: 250px;
+}
+
+.map-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Custom Marker */
+.mapbox-marker {
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    color: #fff;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: var(--font-family);
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    border: 2px solid #fff;
+}
+
+.mapbox-marker:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.5);
+}
+
+/* Popup */
+.map-popup {
+    cursor: pointer;
+}
+
+.map-popup img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 6px 6px 0 0;
+}
+
+.map-popup-body {
+    padding: 0.5rem 0.6rem 0.6rem;
+}
+
+.map-popup-body h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: 0.15rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.map-popup-location {
+    font-size: 0.72rem;
+    color: var(--gray-500);
+    margin-bottom: 0.4rem;
+}
+
+.map-popup-footer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+
+.map-popup-footer strong {
+    font-size: 0.95rem;
+    color: var(--green-700);
+}
+
+.map-popup-footer span {
+    font-size: 0.7rem;
+    color: var(--gray-400);
+}
+
+/* Override mapbox popup defaults */
+.mapboxgl-popup-content {
+    padding: 0 !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.mapboxgl-popup-close-button {
+    font-size: 1.1rem;
+    color: #fff;
+    right: 4px;
+    top: 4px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.mapboxgl-popup-close-button:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .map-full {
+        height: 400px;
+    }
+
+    .map-mini {
+        height: 200px;
+    }
+}

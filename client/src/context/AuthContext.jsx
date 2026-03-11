@@ -7,6 +7,7 @@ import {
     signInWithPopup,
     signOut,
     updateProfile,
+    sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
 import { registerUser, getMe } from "../services/api";
@@ -35,8 +36,19 @@ export const AuthProvider = ({ children }) => {
                     const res = await getMe();
                     setUserProfile(res.data.user);
                 } catch (err) {
-                    // User exists in Firebase but not in our DB yet — that's okay
-                    setUserProfile(null);
+                    // User exists in Firebase but not in our DB — auto-register
+                    try {
+                        const pendingRole = localStorage.getItem("pendingRole") || "student";
+                        const res = await registerUser({
+                            name: firebaseUser.displayName || "User",
+                            role: pendingRole,
+                        });
+                        setUserProfile(res.data.user);
+                        localStorage.removeItem("pendingRole");
+                    } catch (regErr) {
+                        console.error("Auto-register failed:", regErr);
+                        setUserProfile(null);
+                    }
                 }
             } else {
                 localStorage.removeItem("authToken");
@@ -51,6 +63,9 @@ export const AuthProvider = ({ children }) => {
 
     // Email/Password Signup
     const signup = async (email, password, name, extraData = {}) => {
+        // Save role in case MongoDB registration fails — auto-register will pick it up
+        if (extraData.role) localStorage.setItem("pendingRole", extraData.role);
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
         // Update Firebase display name
@@ -66,6 +81,7 @@ export const AuthProvider = ({ children }) => {
             ...extraData,
         });
         setUserProfile(res.data.user);
+        localStorage.removeItem("pendingRole");
 
         return res.data.user;
     };
@@ -110,6 +126,11 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Forgot Password
+    const resetPassword = async (email) => {
+        await sendPasswordResetEmail(auth, email);
+    };
+
     // Logout
     const logout = async () => {
         await signOut(auth);
@@ -125,6 +146,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         login,
         googleLogin,
+        resetPassword,
         logout,
         setUserProfile,
     };

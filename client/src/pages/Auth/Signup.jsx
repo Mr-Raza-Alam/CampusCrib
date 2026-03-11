@@ -30,7 +30,7 @@ const Signup = () => {
                 role,
                 phone,
             });
-            navigate("/listings");
+            navigate(role === "owner" ? "/owner/dashboard" : "/listings");
         } catch (err) {
             setError(err.message?.replace("Firebase: ", "") || "Signup failed");
         } finally {
@@ -44,7 +44,7 @@ const Signup = () => {
 
         try {
             await googleLogin({ role });
-            navigate("/listings");
+            navigate(role === "owner" ? "/owner/dashboard" : "/listings");
         } catch (err) {
             setError(err.message?.replace("Firebase: ", "") || "Google signup failed");
         } finally {

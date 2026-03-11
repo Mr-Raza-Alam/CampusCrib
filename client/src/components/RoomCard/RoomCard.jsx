@@ -1,4 +1,5 @@
-// RoomCard component — displays a listing preview
+// RoomCard component — displays a listing preview with image skeleton loading
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./RoomCard.css";
 
@@ -17,14 +18,20 @@ const amenityIcons = {
 
 const RoomCard = ({ listing }) => {
     const { _id, title, image, price, location, roomType, amenities, nearbyCollege, distanceFromCollege, availableRooms } = listing;
+    const [imgLoaded, setImgLoaded] = useState(false);
+    const [imgError, setImgError] = useState(false);
 
     return (
         <Link to={`/listings/${_id}`} className="room-card card">
             <div className="room-card-img-wrap">
+                {!imgLoaded && !imgError && <div className="room-card-skeleton" />}
                 <img
                     src={image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
                     alt={title}
-                    className="room-card-img"
+                    className={`room-card-img ${imgLoaded ? "loaded" : ""}`}
+                    onLoad={() => setImgLoaded(true)}
+                    onError={() => { setImgError(true); setImgLoaded(true); }}
+                    loading="lazy"
                 />
                 <span className="room-card-type">{roomType}</span>
                 {availableRooms <= 2 && (
@@ -59,7 +66,7 @@ const RoomCard = ({ listing }) => {
                         <strong>&#8377;{price?.toLocaleString("en-IN")}</strong>
                         <small>/month</small>
                     </span>
-                    <span className="room-card-view">View Details</span>
+                    <span className="room-card-view">View Details →</span>
                 </div>
             </div>
         </Link>

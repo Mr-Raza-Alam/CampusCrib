@@ -210,6 +210,37 @@
     text-decoration: underline;
 }
 
+/* Forgot Password */
+.forgot-link-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.25rem;
+}
+
+.forgot-link {
+    font-size: 0.82rem;
+    color: var(--green-600);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.forgot-link:hover {
+    color: var(--green-800);
+    text-decoration: underline;
+}
+
+/* Success Message */
+.auth-success {
+    background: var(--green-100);
+    color: var(--green-800);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--green-300);
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .auth-card {

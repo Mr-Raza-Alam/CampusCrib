@@ -31,6 +31,7 @@ export const updateListing = (id, formData) =>
         headers: { "Content-Type": "multipart/form-data" },
     });
 export const deleteListing = (id) => api.delete(`/listings/${id}`);
+export const getMyListings = () => api.get("/listings/my");
 
 // ---- Auth ----
 export const registerUser = (data) => api.post("/auth/register", data);
@@ -45,6 +46,8 @@ export const deleteReview = (reviewId) => api.delete(`/reviews/${reviewId}`);
 export const createBooking = (listingId, data) => api.post(`/bookings/${listingId}`, data);
 export const getMyBookings = () => api.get("/bookings/my");
 export const respondToBooking = (id, status) => api.put(`/bookings/${id}/respond`, { status });
+export const confirmPayment = (id) => api.put(`/bookings/${id}/confirm-payment`);
+export const deleteBooking = (id) => api.delete(`/bookings/${id}`);
 
 // ---- Admin ----
 export const getAdminStats = () => api.get("/admin/stats");
