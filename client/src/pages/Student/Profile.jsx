@@ -1,8 +1,8 @@
-// Profile Page — edit name, phone, college info + owner payment info
+// Profile Page — edit name, phone, college info + owner payment info + QR code upload
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { updateProfile as updateProfileAPI } from "../../services/api";
+import { updateProfile as updateProfileAPI, uploadQRCode } from "../../services/api";
 import "../Dashboard/Dashboard.css";
 
 const Profile = () => {
@@ -21,6 +21,9 @@ const Profile = () => {
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
+    const [qrPreview, setQrPreview] = useState("");
+    const [qrFile, setQrFile] = useState(null);
+    const [uploadingQR, setUploadingQR] = useState(false);
 
     const isOwner = userProfile?.role === "owner";
 
@@ -38,6 +41,9 @@ const Profile = () => {
                     accountNumber: userProfile.paymentInfo.accountNumber || "",
                     ifscCode: userProfile.paymentInfo.ifscCode || "",
                 });
+                if (userProfile.paymentInfo.qrCodeImage) {
+                    setQrPreview(userProfile.paymentInfo.qrCodeImage);
+                }
             }
         }
     }, [userProfile]);
@@ -48,6 +54,33 @@ const Profile = () => {
 
     const handlePaymentChange = (e) => {
         setPaymentForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleQRSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setQrFile(file);
+            setQrPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleQRUpload = async () => {
+        if (!qrFile) return;
+        setUploadingQR(true);
+        setMessage("");
+        try {
+            const fd = new FormData();
+            fd.append("qrCodeImage", qrFile);
+            const res = await uploadQRCode(fd);
+            setUserProfile(res.data.user);
+            setQrFile(null);
+            setQrPreview(res.data.qrCodeUrl);
+            setMessage("QR code uploaded successfully!");
+        } catch (err) {
+            setMessage("Failed to upload QR code.");
+        } finally {
+            setUploadingQR(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -141,6 +174,47 @@ const Profile = () => {
                                 <div className="form-group">
                                     <label>Account Number</label>
                                     <input name="accountNumber" value={paymentForm.accountNumber} onChange={handlePaymentChange} placeholder="Bank account number" />
+                                </div>
+
+                                {/* QR Code Upload */}
+                                <div className="form-group">
+                                    <label>📱 Payment QR Code (Google Pay / Paytm / PhonePe)</label>
+                                    <p style={{ fontSize: "0.75rem", color: "#6B7280", marginBottom: "0.5rem" }}>
+                                        Upload your payment app QR code so students can easily scan and pay the security deposit.
+                                    </p>
+                                    <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+                                        {qrPreview && (
+                                            <div style={{ 
+                                                border: "2px solid #D1FAE5", borderRadius: "8px", 
+                                                padding: "0.5rem", background: "#F0FDF4" 
+                                            }}>
+                                                <img
+                                                    src={qrPreview}
+                                                    alt="QR Code Preview"
+                                                    style={{ width: "150px", height: "150px", objectFit: "contain", borderRadius: "4px" }}
+                                                />
+                                            </div>
+                                        )}
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpg,image/jpeg,image/webp"
+                                                onChange={handleQRSelect}
+                                                style={{ fontSize: "0.8rem" }}
+                                            />
+                                            {qrFile && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary btn-sm"
+                                                    onClick={handleQRUpload}
+                                                    disabled={uploadingQR}
+                                                    style={{ width: "fit-content" }}
+                                                >
+                                                    {uploadingQR ? "Uploading..." : "📤 Upload QR Code"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}

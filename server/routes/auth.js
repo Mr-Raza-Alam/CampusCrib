@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { verifyToken } = require("../middleware/auth");
+const { qrUpload } = require("../config/cloudinary");
 
 // POST /api/auth/register — Create user profile after Firebase signup
 router.post("/register", verifyToken, async (req, res) => {
@@ -78,6 +79,35 @@ router.put("/profile", verifyToken, async (req, res) => {
         await user.save();
         res.json({ user, message: "Profile updated successfully" });
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// PUT /api/auth/profile/qr-code — Owner uploads payment QR code image
+router.put("/profile/qr-code", verifyToken, qrUpload.single("qrCodeImage"), async (req, res) => {
+    try {
+        const user = await User.findOne({ firebaseUid: req.firebaseUser.uid });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (user.role !== "owner") {
+            return res.status(403).json({ error: "Only owners can upload QR codes" });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: "No QR code image provided" });
+        }
+
+        // Save Cloudinary URL to paymentInfo
+        if (!user.paymentInfo) {
+            user.paymentInfo = {};
+        }
+        user.paymentInfo.qrCodeImage = req.file.path;
+        user.markModified("paymentInfo");
+        await user.save();
+
+        res.json({ user, qrCodeUrl: req.file.path, message: "QR code uploaded successfully" });
+    } catch (error) {
+        console.error("QR upload error:", error);
         res.status(500).json({ error: error.message });
     }
 });

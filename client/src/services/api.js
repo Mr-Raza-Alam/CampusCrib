@@ -37,6 +37,10 @@ export const getMyListings = () => api.get("/listings/my");
 export const registerUser = (data) => api.post("/auth/register", data);
 export const getMe = () => api.get("/auth/me");
 export const updateProfile = (data) => api.put("/auth/profile", data);
+export const uploadQRCode = (formData) =>
+    api.put("/auth/profile/qr-code", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 
 // ---- Reviews ----
 export const addReview = (listingId, data) => api.post(`/reviews/${listingId}`, data);

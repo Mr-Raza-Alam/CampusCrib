@@ -10,6 +10,7 @@ cloudinary.v2.config({
     api_secret: process.env.CLOUD_API_SECRET,
 });
 
+// Listing images storage
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
@@ -19,6 +20,17 @@ const storage = new CloudinaryStorage({
     },
 });
 
-const upload = multer({ storage });
+// QR code images storage (for owner payment)
+const qrStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "campuscrib/qrcodes",
+        allowedFormats: ["png", "jpg", "jpeg", "webp"],
+        transformation: [{ width: 400, height: 400, crop: "limit", quality: "auto" }],
+    },
+});
 
-module.exports = { cloudinary: cloudinary.v2, upload };
+const upload = multer({ storage });
+const qrUpload = multer({ storage: qrStorage });
+
+module.exports = { cloudinary: cloudinary.v2, upload, qrUpload };
