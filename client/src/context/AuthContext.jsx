@@ -139,6 +139,21 @@ export const AuthProvider = ({ children }) => {
         setUserProfile(null);
     };
 
+    // Refresh user profile from backend (e.g. after admin verifies owner)
+    const refreshUserProfile = async () => {
+        try {
+            if (currentUser) {
+                const token = await currentUser.getIdToken(true);
+                localStorage.setItem("authToken", token);
+            }
+            const res = await getMe();
+            setUserProfile(res.data.user);
+            return res.data.user;
+        } catch (err) {
+            console.error("Failed to refresh profile:", err);
+        }
+    };
+
     const value = {
         currentUser,
         userProfile,
@@ -149,6 +164,7 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         logout,
         setUserProfile,
+        refreshUserProfile,
     };
 
     return (

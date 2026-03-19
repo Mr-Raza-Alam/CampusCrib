@@ -1,10 +1,14 @@
 // Cloudinary configuration for image uploads
-const cloudinary = require("cloudinary");
-const multerStorageCloudinary = require("multer-storage-cloudinary");
-const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
 
-cloudinary.v2.config({
+// Validate credentials exist
+if (!process.env.CLOUD_NAME || !process.env.CLOUD_API_KEY || !process.env.CLOUD_API_SECRET) {
+    console.error("⚠️  Missing Cloudinary credentials! Image uploads will fail.");
+}
+
+cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUD_API_KEY,
     api_secret: process.env.CLOUD_API_SECRET,
@@ -33,4 +37,5 @@ const qrStorage = new CloudinaryStorage({
 const upload = multer({ storage });
 const qrUpload = multer({ storage: qrStorage });
 
-module.exports = { cloudinary: cloudinary.v2, upload, qrUpload };
+module.exports = { cloudinary, upload, qrUpload };
+

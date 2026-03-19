@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getMyListings, getMyBookings, respondToBooking, deleteBooking } from "../../services/api";
+import { getMyListings, getMyBookings, respondToBooking, deleteBooking, getProfile } from "../../services/api";
 import "./Dashboard.css";
 
 const OwnerDashboard = () => {
@@ -12,8 +12,11 @@ const OwnerDashboard = () => {
     const [listings, setListings] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const isVerified = userProfile?.isVerified === true;
+
+    const { refreshUserProfile } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -82,6 +85,18 @@ const OwnerDashboard = () => {
                             <h3>Account Pending Verification</h3>
                             <p>Your owner account is being reviewed by our admin team. Once verified, you'll be able to create listings and manage bookings.</p>
                         </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={async () => {
+                                setRefreshing(true);
+                                try { await refreshUserProfile(); } catch (e) {}
+                                setRefreshing(false);
+                            }}
+                            disabled={refreshing}
+                            style={{ marginLeft: "auto", whiteSpace: "nowrap", minWidth: "120px" }}
+                        >
+                            {refreshing ? "Checking..." : "🔄 Refresh Status"}
+                        </button>
                     </div>
                 )}
 
