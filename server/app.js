@@ -14,23 +14,7 @@ const PORT = process.env.PORT || 3300;
 // Connect to MongoDB
 connectDB();
 
-// Security Middlewares
-app.use(helmet({ crossOriginResourcePolicy: false })); // allow Vercel to fetch from Render API
-app.use(mongoSanitize()); // prevents NoSQL injection attacks
-
-// API Rate Limiting to prevent DDoS
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 200, // Limit each IP to 200 requests per window
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: "Too many requests from this IP. Please try again later." }
-});
-
-// Apply rate limiter specifically to API routes
-app.use("/api/", apiLimiter);
-
-// Middleware
+// 1. CORS FIRST
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests from any localhost port (dev) or configured CLIENT_URL (prod)
@@ -43,6 +27,27 @@ app.use(cors({
     },
     credentials: true,
 }));
+
+// 2. Security Middlewares
+app.use(helmet({ 
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false 
+})); 
+app.use(mongoSanitize());
+
+// 3. API Rate Limiting to prevent DDoS
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200, // Limit each IP to 200 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests from this IP. Please try again later." }
+});
+
+// Apply rate limiter specifically to API routes
+app.use("/api/", apiLimiter);
+
+// 4. Body Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
