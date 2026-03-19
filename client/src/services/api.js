@@ -53,6 +53,9 @@ export const respondToBooking = (id, status) => api.put(`/bookings/${id}/respond
 export const confirmPayment = (id) => api.put(`/bookings/${id}/confirm-payment`);
 export const deleteBooking = (id) => api.delete(`/bookings/${id}`);
 
+// ---- AI Features ----
+export const generateDescription = (data) => api.post("/ai/generate-description", data);
+
 // ---- Admin ----
 export const getAdminStats = () => api.get("/admin/stats");
 export const getAdminUsers = (params) => api.get("/admin/users", { params });

@@ -55,6 +55,7 @@ app.use("/api/listings", require("./routes/listings"));
 app.use("/api/reviews", require("./routes/reviews"));
 app.use("/api/bookings", require("./routes/bookings"));
 app.use("/api/admin", require("./routes/admin"));
+app.use("/api/ai", require("./routes/ai"));
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -1,7 +1,8 @@
 // Add Listing — form for owners to create new room listings
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createListing } from "../../services/api";
+import { createListing, generateDescription } from "../../services/api";
+import imageCompression from "browser-image-compression";
 import { useAuth } from "../../context/AuthContext";
 import "./Dashboard.css";
 
@@ -81,6 +82,32 @@ const AddListing = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
+    const [generatingAI, setGeneratingAI] = useState(false);
+
+    const handleGenerateAI = async () => {
+        if (!form.location || !form.roomType) {
+            setError("Please fill in Room Type and Location first to help AI write a better description.");
+            window.scrollTo(0, 0);
+            return;
+        }
+        setGeneratingAI(true);
+        setError("");
+        try {
+            const res = await generateDescription({
+                keywords: form.description,
+                location: form.location,
+                roomType: form.roomType,
+                amenities: form.amenities,
+                price: form.price,
+            });
+            setForm((prev) => ({ ...prev, description: res.data.description }));
+        } catch (err) {
+            setError(err.response?.data?.error || "Failed to generate description.");
+            window.scrollTo(0, 0);
+        } finally {
+            setGeneratingAI(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -111,12 +138,10 @@ const AddListing = () => {
         return true;
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file && validateFile(file)) {
-            setImage(file);
-            setImagePreview(URL.createObjectURL(file));
-            setError("");
+            await compressAndSetImage(file);
         }
     };
 
@@ -132,15 +157,31 @@ const AddListing = () => {
         e.currentTarget.classList.remove("drag-active");
     };
 
-    const handleDrop = (e) => {
+    const handleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         e.currentTarget.classList.remove("drag-active");
         const file = e.dataTransfer.files[0];
         if (file && validateFile(file)) {
-            setImage(file);
-            setImagePreview(URL.createObjectURL(file));
+            await compressAndSetImage(file);
+        }
+    };
+
+    const compressAndSetImage = async (file) => {
+        try {
+            const options = {
+                maxSizeMB: 1, // Max 1MB
+                maxWidthOrHeight: 1920, // HD max
+                useWebWorker: true,
+            };
+            const compressedFile = await imageCompression(file, options);
+            setImage(compressedFile);
+            setImagePreview(URL.createObjectURL(compressedFile));
             setError("");
+        } catch (err) {
+            console.error("Compression error:", err);
+            setError("Failed to compress image. Please try another one.");
+            window.scrollTo(0, 0);
         }
     };
 
@@ -203,8 +244,32 @@ const AddListing = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Description *</label>
-                            <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe the room, facilities, surroundings..." />
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                <label>Description *</label>
+                                <button
+                                    type="button"
+                                    onClick={handleGenerateAI}
+                                    disabled={generatingAI}
+                                    style={{
+                                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                                        color: "white", border: "none", borderRadius: "8px",
+                                        padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer",
+                                        display: "flex", alignItems: "center", gap: "0.3rem", fontWeight: "500",
+                                        transition: "transform 0.1s"
+                                    }}
+                                    onMouseDown={e => e.currentTarget.style.transform = "scale(0.96)"}
+                                    onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                                >
+                                    {generatingAI ? "⌛ Generating..." : "✨ Generate with AI"}
+                                </button>
+                            </div>
+                            <textarea
+                                name="description"
+                                value={form.description}
+                                onChange={handleChange}
+                                placeholder="Write a short description, or type some rough keywords and click 'Generate with AI'..."
+                                style={{ marginTop: "0.5rem" }}
+                            />
                         </div>
 
                         <div className="form-row">

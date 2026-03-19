@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { updateProfile as updateProfileAPI, uploadQRCode } from "../../services/api";
+import imageCompression from "browser-image-compression";
 import "../Dashboard/Dashboard.css";
 
 const Profile = () => {
@@ -56,11 +57,18 @@ const Profile = () => {
         setPaymentForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleQRSelect = (e) => {
+    const handleQRSelect = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setQrFile(file);
-            setQrPreview(URL.createObjectURL(file));
+            try {
+                const options = { maxSizeMB: 1, maxWidthOrHeight: 1000, useWebWorker: true };
+                const compressedFile = await imageCompression(file, options);
+                setQrFile(compressedFile);
+                setQrPreview(URL.createObjectURL(compressedFile));
+            } catch (err) {
+                console.error("QR compression error:", err);
+                setMessage("Failed to process QR code image.");
+            }
         }
     };
 
