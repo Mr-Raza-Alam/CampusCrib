@@ -5,7 +5,6 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const helmet = require("helmet");
-const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 
 const app = express();
@@ -49,9 +48,6 @@ app.use("/api/", apiLimiter);
 // 4. Body Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// 5. NoSQL Injection Sanitizer (MUST be after body parsers)
-app.use(mongoSanitize());
 
 // API Routes
 app.use("/api/auth", require("./routes/auth"));
