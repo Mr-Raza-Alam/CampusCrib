@@ -4,12 +4,31 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.PORT || 3300;
 
 // Connect to MongoDB
 connectDB();
+
+// Security Middlewares
+app.use(helmet()); // sets secure HTTP headers
+app.use(mongoSanitize()); // prevents NoSQL injection attacks
+
+// API Rate Limiting to prevent DDoS
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200, // Limit each IP to 200 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests from this IP. Please try again later." }
+});
+
+// Apply rate limiter specifically to API routes
+app.use("/api/", apiLimiter);
 
 // Middleware
 app.use(cors({

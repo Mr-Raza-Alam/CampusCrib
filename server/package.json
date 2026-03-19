@@ -7,7 +7,12 @@
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["college", "accommodation", "rooms", "pg"],
+  "keywords": [
+    "college",
+    "accommodation",
+    "rooms",
+    "pg"
+  ],
   "author": "Raza Alam",
   "license": "ISC",
   "description": "CampusCrib - Backend API for college accommodation platform",
@@ -17,8 +22,11 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.3.1",
     "express-session": "^1.19.0",
     "firebase-admin": "^13.7.0",
+    "helmet": "^8.1.0",
     "joi": "^18.0.2",
     "mongoose": "^9.2.3",
     "multer": "^2.1.0",
