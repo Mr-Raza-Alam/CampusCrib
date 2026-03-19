@@ -25,23 +25,25 @@ const AdminDashboard = () => {
     const [userSearch, setUserSearch] = useState("");
     const [listingFilter, setListingFilter] = useState("");
 
-    // Fetch stats on mount
+    // Fetch stats
+    const fetchStats = async () => {
+        try {
+            const res = await getAdminStats();
+            setStats(res.data.stats);
+        } catch (err) {
+            console.error("Stats error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const res = await getAdminStats();
-                setStats(res.data.stats);
-            } catch (err) {
-                console.error("Stats error:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchStats();
     }, []);
 
-    // Fetch users when tab opens
+    // Fetch data when tab opens — always refetch stats too
     useEffect(() => {
+        if (activeTab === "overview") fetchStats();
         if (activeTab === "users") fetchUsers();
         if (activeTab === "listings") fetchListings();
     }, [activeTab, userFilter, listingFilter]);
@@ -257,6 +259,7 @@ const AdminDashboard = () => {
                                             <th>Verified</th>
                                             <th>Joined</th>
                                             <th>Actions</th>
+                                            <th>Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -291,14 +294,17 @@ const AdminDashboard = () => {
                                                     {user.role === "owner" && user.verificationStatus === "approved" && (
                                                         <span className="verified-check">✓ Verified</span>
                                                     )}
-                                                    {user.role !== "admin" && (
+                                                </td>
+                                                <td>
+                                                    {user.role !== "admin" ? (
                                                         <button
                                                             className="btn-sm btn-delete"
                                                             onClick={() => handleDeleteUser(user._id, user.name)}
-                                                            style={{ marginLeft: "0.25rem" }}
                                                         >
                                                             🗑️ Delete
                                                         </button>
+                                                    ) : (
+                                                        <span style={{ color: "#9CA3AF", fontSize: "0.8rem" }}>—</span>
                                                     )}
                                                 </td>
                                             </tr>
