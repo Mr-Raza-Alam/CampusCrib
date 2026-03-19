@@ -120,7 +120,7 @@ router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
     }
 });
 
-// PUT /api/listings/:id — Update listing (owner of this listing only)
+// PUT /api/listings/:id — Update listing (owner or admin)
 router.put("/:id", isAuthenticated, upload.single("image"), async (req, res) => {
     try {
         const listing = await Listing.findById(req.params.id);
@@ -128,15 +128,25 @@ router.put("/:id", isAuthenticated, upload.single("image"), async (req, res) => 
             return res.status(404).json({ error: "Listing not found" });
         }
 
-        // Only the owner or admin can update
         if (listing.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
             return res.status(403).json({ error: "You don't have permission to edit this listing" });
         }
 
         const updates = { ...req.body };
+        
+        // If a new image is uploaded, delete the old one from Cloudinary and save the new one
         if (req.file) {
+            if (listing.image && listing.image.filename) {
+                const { cloudinary } = require("../config/cloudinary");
+                try {
+                    await cloudinary.uploader.destroy(listing.image.filename);
+                } catch (e) {
+                    console.error("Failed to delete old image from Cloudinary:", e);
+                }
+            }
             updates.image = { url: req.file.path, filename: req.file.filename };
         }
+        
         if (req.body.coordinates) {
             updates.geometry = { type: "Point", coordinates: JSON.parse(req.body.coordinates) };
         }

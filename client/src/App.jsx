@@ -12,6 +12,7 @@ import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import OwnerDashboard from "./pages/Dashboard/OwnerDashboard";
 import AddListing from "./pages/Dashboard/AddListing";
+import EditListing from "./pages/Dashboard/EditListing";
 import AdminDashboard from "./pages/Dashboard/AdminDashboard";
 import MyBookings from "./pages/Student/MyBookings";
 import Profile from "./pages/Student/Profile";
@@ -53,6 +54,11 @@ function App() {
               <Route path="/owner/add-listing" element={
                 <RoleRoute roles={["owner", "admin"]}>
                   <AddListing />
+                </RoleRoute>
+              } />
+              <Route path="/owner/edit-listing/:id" element={
+                <RoleRoute roles={["owner", "admin"]}>
+                  <EditListing />
                 </RoleRoute>
               } />
 
