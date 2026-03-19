@@ -33,7 +33,6 @@ app.use(helmet({
     crossOriginResourcePolicy: false,
     crossOriginOpenerPolicy: false 
 })); 
-app.use(mongoSanitize());
 
 // 3. API Rate Limiting to prevent DDoS
 const apiLimiter = rateLimit({
@@ -50,6 +49,9 @@ app.use("/api/", apiLimiter);
 // 4. Body Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 5. NoSQL Injection Sanitizer (MUST be after body parsers)
+app.use(mongoSanitize());
 
 // API Routes
 app.use("/api/auth", require("./routes/auth"));
