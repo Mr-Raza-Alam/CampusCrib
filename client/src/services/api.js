@@ -61,6 +61,7 @@ export const getAdminListings = (params) => api.get("/admin/listings", { params 
 export const approveListing = (id, status) => api.put(`/admin/listings/${id}/approve`, { status });
 export const adminDeleteListing = (id) => api.delete(`/admin/listings/${id}`);
 export const adminDeleteReview = (id) => api.delete(`/admin/reviews/${id}`);
+export const adminDeleteUser = (id) => api.delete(`/admin/users/${id}`);
 
 // ---- Health Check ----
 export const healthCheck = () => api.get("/health");

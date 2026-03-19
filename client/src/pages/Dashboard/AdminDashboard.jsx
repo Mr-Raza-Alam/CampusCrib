@@ -10,6 +10,7 @@ import {
     approveListing,
     adminDeleteListing,
     adminDeleteReview,
+    adminDeleteUser,
 } from "../../services/api";
 import "./Dashboard.css";
 
@@ -103,6 +104,16 @@ const AdminDashboard = () => {
             setListings((prev) => prev.filter((l) => l._id !== listingId));
         } catch (err) {
             alert("Failed to delete listing");
+        }
+    };
+
+    const handleDeleteUser = async (userId, userName) => {
+        if (!window.confirm(`Are you sure you want to delete "${userName}"? This will permanently remove them and ALL their bookings, reviews, and listings.`)) return;
+        try {
+            await adminDeleteUser(userId);
+            setUsers((prev) => prev.filter((u) => u._id !== userId));
+        } catch (err) {
+            alert(err.response?.data?.error || "Failed to delete user");
         }
     };
 
@@ -279,6 +290,15 @@ const AdminDashboard = () => {
                                                     )}
                                                     {user.role === "owner" && user.verificationStatus === "approved" && (
                                                         <span className="verified-check">✓ Verified</span>
+                                                    )}
+                                                    {user.role !== "admin" && (
+                                                        <button
+                                                            className="btn-sm btn-delete"
+                                                            onClick={() => handleDeleteUser(user._id, user.name)}
+                                                            style={{ marginLeft: "0.25rem" }}
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
                                                     )}
                                                 </td>
                                             </tr>

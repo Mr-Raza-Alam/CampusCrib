@@ -9,6 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [showForgot, setShowForgot] = useState(false);
     const [forgotEmail, setForgotEmail] = useState("");
     const [forgotMsg, setForgotMsg] = useState("");
@@ -159,13 +160,28 @@ const Login = () => {
 
                             <div className="form-group">
                                 <label>Password</label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
+                                <div style={{ position: "relative" }}>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="Enter your password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        style={{ paddingRight: "2.5rem" }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: "absolute", right: "0.5rem", top: "50%",
+                                            transform: "translateY(-50%)", background: "none",
+                                            border: "none", cursor: "pointer", fontSize: "1.1rem",
+                                            color: "#6B7280", padding: "0.25rem"
+                                        }}
+                                    >
+                                        {showPassword ? "🙈" : "👁️"}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="forgot-link-row">

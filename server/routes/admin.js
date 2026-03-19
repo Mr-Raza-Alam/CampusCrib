@@ -159,4 +159,38 @@ router.delete("/reviews/:id", async (req, res) => {
     }
 });
 
+// DELETE /api/admin/users/:id — Delete a user and all their data (cascading)
+router.delete("/users/:id", async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Prevent admin from deleting themselves
+        if (user._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({ error: "You cannot delete your own admin account" });
+        }
+
+        // Cascading delete — remove all related data
+        await Booking.deleteMany({ $or: [{ student: user._id }, { owner: user._id }] });
+        await Review.deleteMany({ author: user._id });
+
+        // If owner, delete their listings and reviews on those listings
+        if (user.role === "owner") {
+            const ownerListings = await Listing.find({ owner: user._id });
+            for (const listing of ownerListings) {
+                await Review.deleteMany({ listing: listing._id });
+            }
+            await Listing.deleteMany({ owner: user._id });
+        }
+
+        await User.findByIdAndDelete(req.params.id);
+
+        res.json({ message: `User "${user.name}" and all related data deleted successfully` });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

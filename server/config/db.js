@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
     try {
-        const dbUrl = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/campuscrib";
+        const dbUrl = process.env.ATLASDB_URL || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/campuscrib";
         const conn = await mongoose.connect(dbUrl);
         console.log(`MongoDB connected: ${conn.connection.host}`);
     } catch (error) {
