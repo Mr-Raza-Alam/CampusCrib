@@ -250,7 +250,7 @@ const OwnerDashboard = () => {
                                             </div>
                                             <div className="my-listing-actions">
                                                 <Link to={`/listings/${listing._id}`} className="btn-sm btn-view">View</Link>
-                                                <Link to={`/owner/edit-listing/${listing._id}`} className="btn-sm" style={{ background: "#F59E0B", color: "white", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>✏️ Edit</Link>
+                                                <Link to={`/owner/edit-listing/${listing._id}`} className="btn-sm" style={{ background: "#6b7280", color: "white", textDecoration: "none" }}>Edit</Link>
                                                 <button className="btn-sm btn-delete" onClick={() => handleDelete(listing._id)}>Delete</button>
                                             </div>
                                         </div>

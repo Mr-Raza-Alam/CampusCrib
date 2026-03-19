@@ -296,17 +296,10 @@ const EditListing = () => {
                                     type="button"
                                     onClick={handleGenerateAI}
                                     disabled={generatingAI}
-                                    style={{
-                                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-                                        color: "white", border: "none", borderRadius: "8px",
-                                        padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer",
-                                        display: "flex", alignItems: "center", gap: "0.3rem", fontWeight: "500",
-                                        transition: "transform 0.1s"
-                                    }}
-                                    onMouseDown={e => e.currentTarget.style.transform = "scale(0.96)"}
-                                    onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                                    className="btn btn-primary btn-sm-pad"
+                                    style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
                                 >
-                                    {generatingAI ? "⌛ Generating..." : "✨ Generate with AI"}
+                                    {generatingAI ? "Generating..." : "Generate with AI"}
                                 </button>
                             </div>
                             <textarea
