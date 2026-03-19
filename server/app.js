@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3300;
 connectDB();
 
 // Security Middlewares
-app.use(helmet()); // sets secure HTTP headers
+app.use(helmet({ crossOriginResourcePolicy: false })); // allow Vercel to fetch from Render API
 app.use(mongoSanitize()); // prevents NoSQL injection attacks
 
 // API Rate Limiting to prevent DDoS
