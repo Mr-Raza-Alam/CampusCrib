@@ -18,7 +18,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: "campuscrib",
+        folder: "CampusCrib_Image",
         allowedFormats: ["png", "jpg", "jpeg", "webp"],
         transformation: [{ width: 800, height: 600, crop: "limit", quality: "auto" }],
     },
@@ -28,7 +28,7 @@ const storage = new CloudinaryStorage({
 const qrStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: "campuscrib/qrcodes",
+        folder: "CampusCrib_QR",
         allowedFormats: ["png", "jpg", "jpeg", "webp"],
         transformation: [{ width: 400, height: 400, crop: "limit", quality: "auto" }],
     },
