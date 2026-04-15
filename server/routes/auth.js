@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { verifyToken } = require("../middleware/auth");
-const { qrUpload } = require("../config/cloudinary");
+const { qrUpload, uploadToCloudinary } = require("../config/cloudinary");
 
 // POST /api/auth/register — Create user profile after Firebase signup
 router.post("/register", verifyToken, async (req, res) => {
@@ -97,15 +97,18 @@ router.put("/profile/qr-code", verifyToken, qrUpload.single("qrCodeImage"), asyn
             return res.status(400).json({ error: "No QR code image provided" });
         }
 
-        // Save Cloudinary URL to paymentInfo
+        // Upload to Cloudinary and save URL to paymentInfo
+        const result = await uploadToCloudinary(req.file.buffer, "CampusCrib_QR", [
+            { width: 400, height: 400, crop: "limit", quality: "auto" },
+        ]);
         if (!user.paymentInfo) {
             user.paymentInfo = {};
         }
-        user.paymentInfo.qrCodeImage = req.file.path;
+        user.paymentInfo.qrCodeImage = result.url;
         user.markModified("paymentInfo");
         await user.save();
 
-        res.json({ user, qrCodeUrl: req.file.path, message: "QR code uploaded successfully" });
+        res.json({ user, qrCodeUrl: result.url, message: "QR code uploaded successfully" });
     } catch (error) {
         console.error("QR upload error:", error);
         res.status(500).json({ error: error.message });

@@ -4,7 +4,7 @@ const router = express.Router();
 const Listing = require("../models/Listing");
 const { isAuthenticated, isOwner, isVerifiedOwner } = require("../middleware/auth");
 const { validateListing } = require("../middleware/validate");
-const { upload } = require("../config/cloudinary");
+const { upload, uploadToCloudinary, cloudinary } = require("../config/cloudinary");
 
 // GET /api/listings — Get all approved listings (public)
 router.get("/", async (req, res) => {
@@ -103,9 +103,12 @@ router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
         });
 
         if (req.file) {
+            const result = await uploadToCloudinary(req.file.buffer, "CampusCrib_Image", [
+                { width: 800, height: 600, crop: "limit", quality: "auto" },
+            ]);
             newListing.image = {
-                url: req.file.path,
-                filename: req.file.filename,
+                url: result.url,
+                filename: result.filename,
             };
         }
 
@@ -137,14 +140,16 @@ router.put("/:id", isAuthenticated, upload.single("image"), async (req, res) => 
         // If a new image is uploaded, delete the old one from Cloudinary and save the new one
         if (req.file) {
             if (listing.image && listing.image.filename) {
-                const { cloudinary } = require("../config/cloudinary");
                 try {
                     await cloudinary.uploader.destroy(listing.image.filename);
                 } catch (e) {
                     console.error("Failed to delete old image from Cloudinary:", e);
                 }
             }
-            updates.image = { url: req.file.path, filename: req.file.filename };
+            const result = await uploadToCloudinary(req.file.buffer, "CampusCrib_Image", [
+                { width: 800, height: 600, crop: "limit", quality: "auto" },
+            ]);
+            updates.image = { url: result.url, filename: result.filename };
         }
         
         if (req.body.coordinates) {
