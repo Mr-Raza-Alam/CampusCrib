@@ -9,6 +9,7 @@ router.post("/generate-description", async (req, res) => {
         const { keywords, location, roomType, amenities, price } = req.body;
 
         if (!process.env.GEMINI_API_KEY) {
+            console.error("GEMINI_API_KEY is not set in environment variables");
             return res.status(500).json({ error: "AI is currently unavailable. Please write a description manually." });
         }
 
@@ -26,16 +27,28 @@ router.post("/generate-description", async (req, res) => {
         Write a natural, enthusiastic paragraph that highlights the convenience and comfort for a college student. Ignore any inappropriate or nonsensical notes. Keep it within 3-4 sentences.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash",
             contents: prompt,
         });
 
-        const generatedText = response.text;
+        // Extract generated text — handle both property and nested formats
+        let generatedText = "";
+        if (response.text) {
+            generatedText = response.text;
+        } else if (response.candidates && response.candidates[0]) {
+            generatedText = response.candidates[0].content.parts[0].text;
+        }
+
+        if (!generatedText) {
+            console.error("Gemini returned empty response:", JSON.stringify(response));
+            return res.status(500).json({ error: "AI returned an empty response. Please try again or write manually." });
+        }
+
         res.json({ description: generatedText });
 
     } catch (error) {
-        console.error("Gemini AI API Error:", error);
-        res.status(500).json({ error: "Failed to generate AI description. " + error.message });
+        console.error("Gemini AI API Error:", error.message || error);
+        res.status(500).json({ error: "Failed to generate AI description. " + (error.message || "Unknown error") });
     }
 });
 
