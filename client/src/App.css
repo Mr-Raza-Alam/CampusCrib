@@ -1,1 +1,23 @@
-/* Remove all default Vite styles */
+/* App-level styles */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Top gradient accent border */
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--navy-500), var(--navy-600), var(--navy-400));
+  z-index: 1000;
+}
+
+.main-content {
+  flex: 1;
+}

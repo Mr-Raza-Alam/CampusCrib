@@ -1,11 +1,11 @@
-/* Auth Pages — Login & Signup Styles */
+/* Auth Pages — Login & Signup Styles — Navy Blue Theme */
 
 .auth-page {
     min-height: calc(100vh - 140px);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--green-50), var(--gray-50));
+    background: linear-gradient(135deg, var(--navy-50), var(--gray-50));
     padding: 2rem;
 }
 
@@ -131,7 +131,7 @@
 }
 
 .form-group input:focus {
-    border-color: var(--green-500);
+    border-color: var(--navy-500);
 }
 
 .form-row {
@@ -177,15 +177,15 @@
 }
 
 .role-btn:hover {
-    border-color: var(--green-300);
-    background: var(--green-50);
+    border-color: var(--navy-300);
+    background: var(--navy-50);
 }
 
 .role-active {
-    border-color: var(--green-500);
-    background: var(--green-50);
-    color: var(--green-800);
-    box-shadow: 0 0 0 3px var(--green-100);
+    border-color: var(--navy-500);
+    background: var(--navy-50);
+    color: var(--navy-800);
+    box-shadow: 0 0 0 3px var(--navy-100);
 }
 
 .role-icon {
@@ -201,12 +201,12 @@
 }
 
 .auth-switch a {
-    color: var(--green-600);
+    color: var(--navy-600);
     font-weight: 600;
 }
 
 .auth-switch a:hover {
-    color: var(--green-800);
+    color: var(--navy-800);
     text-decoration: underline;
 }
 
@@ -219,26 +219,26 @@
 
 .forgot-link {
     font-size: 0.82rem;
-    color: var(--green-600);
+    color: var(--navy-600);
     font-weight: 600;
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .forgot-link:hover {
-    color: var(--green-800);
+    color: var(--navy-800);
     text-decoration: underline;
 }
 
 /* Success Message */
 .auth-success {
-    background: var(--green-100);
-    color: var(--green-800);
+    background: var(--navy-100);
+    color: var(--navy-800);
     padding: 0.6rem 1rem;
     border-radius: var(--radius-md);
     font-size: 0.82rem;
     margin-bottom: 1rem;
-    border: 1px solid var(--green-300);
+    border: 1px solid var(--navy-300);
 }
 
 /* Responsive */

@@ -1,11 +1,16 @@
-/* Navbar Styles */
+/* Navbar Styles — White Background, Navy Accents */
 .navbar {
     position: sticky;
-    top: 0;
+    top: 3px; /* below the gradient border */
     z-index: 100;
-    background: var(--green-900);
+    background: #ffffff;
     padding: 0.75rem 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid var(--gray-200);
+    transition: box-shadow 0.3s ease;
+}
+
+.navbar-scrolled {
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
 }
 
 .navbar-container {
@@ -25,16 +30,16 @@
 }
 
 .brand-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     object-fit: cover;
 }
 
 .brand-text {
     font-size: 1.35rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--navy-800);
     letter-spacing: -0.5px;
 }
 
@@ -45,7 +50,7 @@
 
 .nav-link {
     padding: 0.5rem 1rem;
-    color: var(--green-200);
+    color: var(--gray-600);
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: var(--radius-md);
@@ -53,13 +58,14 @@
 }
 
 .nav-link:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--navy-800);
+    background: var(--navy-50);
 }
 
 .nav-link.active {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.15);
+    color: var(--navy-800);
+    background: var(--navy-50);
+    font-weight: 600;
 }
 
 .navbar-actions {
@@ -73,24 +79,43 @@
     font-size: 0.85rem;
 }
 
+/* Dashboard pill button */
+.btn-dashboard {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy-800);
+    background: transparent;
+    border: 2px solid var(--navy-800);
+    border-radius: 999px;
+    transition: all 0.2s ease;
+}
+
+.btn-dashboard:hover {
+    background: var(--navy-800);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.2);
+}
+
 .navbar-actions .btn-outline {
-    color: var(--green-200);
-    border-color: var(--green-300);
+    color: var(--gray-600);
+    border-color: var(--gray-300);
 }
 
 .navbar-actions .btn-outline:hover {
-    background: #fff;
-    color: var(--green-900);
-    border-color: #fff;
+    background: var(--navy-800);
+    color: #fff;
+    border-color: var(--navy-800);
 }
 
 .navbar-actions .btn-primary {
-    background: var(--green-500);
+    background: var(--navy-800);
     box-shadow: none;
 }
 
 .navbar-actions .btn-primary:hover {
-    background: var(--green-400);
+    background: var(--navy-900);
 }
 
 /* User state in navbar */
@@ -104,7 +129,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--green-500);
+    background: var(--navy-500);
     color: #fff;
     display: flex;
     align-items: center;
@@ -121,18 +146,13 @@
 }
 
 .nav-username {
-    color: var(--green-200);
+    color: var(--gray-700);
     font-size: 0.85rem;
     font-weight: 500;
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.nav-link-badge {
-    color: #FBBF24 !important;
-    font-weight: 700 !important;
 }
 
 /* ===== Hamburger Button ===== */
@@ -150,7 +170,7 @@
 .hamburger-bar {
     width: 24px;
     height: 2.5px;
-    background: #fff;
+    background: var(--navy-800);
     border-radius: 2px;
     transition: all 0.3s ease;
     transform-origin: center;
@@ -197,7 +217,7 @@
     right: -280px;
     width: 280px;
     height: 100vh;
-    background: var(--green-900);
+    background: var(--navy-900);
     z-index: 200;
     flex-direction: column;
     justify-content: space-between;
@@ -218,7 +238,7 @@
 
 .mobile-link {
     padding: 0.75rem 1rem;
-    color: var(--green-200);
+    color: var(--navy-200);
     font-size: 0.95rem;
     font-weight: 500;
     border-radius: var(--radius-md);
@@ -248,7 +268,7 @@
     align-items: center;
     gap: 0.6rem;
     padding: 0.75rem 1rem;
-    color: var(--green-200);
+    color: var(--navy-200);
     font-size: 0.88rem;
     font-weight: 500;
 }
@@ -256,6 +276,17 @@
 .mobile-btn {
     width: 100%;
     text-align: center;
+}
+
+.mobile-drawer .btn-outline {
+    color: var(--navy-200);
+    border-color: var(--navy-300);
+}
+
+.mobile-drawer .btn-outline:hover {
+    background: #fff;
+    color: var(--navy-900);
+    border-color: #fff;
 }
 
 /* ===== Responsive ===== */
@@ -282,5 +313,9 @@
 
     .brand-text {
         font-size: 1.1rem;
+    }
+
+    .hamburger.open .hamburger-bar {
+        background: #fff;
     }
 }

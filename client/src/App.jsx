@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/Dashboard/AdminDashboard";
 import MyBookings from "./pages/Student/MyBookings";
 import Profile from "./pages/Student/Profile";
 import "./index.css";
+import "./App.css";
 
 function App() {
   return (

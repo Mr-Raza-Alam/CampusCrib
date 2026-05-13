@@ -1,4 +1,4 @@
-/* RoomCard Styles */
+/* RoomCard Styles — Navy Blue Theme */
 .room-card {
     display: flex;
     flex-direction: column;
@@ -18,6 +18,12 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.4s ease;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.4s ease;
+}
+
+.room-card-img.loaded {
+    opacity: 1;
 }
 
 .room-card:hover .room-card-img {
@@ -28,7 +34,7 @@
     position: absolute;
     top: 0.75rem;
     left: 0.75rem;
-    background: var(--green-600);
+    background: var(--navy-600);
     color: #fff;
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
@@ -85,13 +91,13 @@
 .college-name {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--green-700);
+    color: var(--navy-700);
 }
 
 .college-dist {
     font-size: 0.72rem;
-    background: var(--green-100);
-    color: var(--green-800);
+    background: var(--navy-100);
+    color: var(--navy-800);
     padding: 0.1rem 0.4rem;
     border-radius: 4px;
 }
@@ -113,8 +119,8 @@
 }
 
 .amenity-more {
-    background: var(--green-100);
-    color: var(--green-700);
+    background: var(--navy-100);
+    color: var(--navy-700);
 }
 
 .room-card-footer {
@@ -134,7 +140,7 @@
 
 .room-card-price strong {
     font-size: 1.15rem;
-    color: var(--green-700);
+    color: var(--navy-800);
 }
 
 .room-card-price small {
@@ -145,12 +151,12 @@
 .room-card-view {
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--green-600);
+    color: var(--navy-600);
     transition: color 0.2s;
 }
 
 .room-card:hover .room-card-view {
-    color: var(--green-800);
+    color: var(--navy-800);
 }
 
 /* Skeleton Shimmer */
@@ -174,15 +180,6 @@
     100% {
         background-position: -200% 0;
     }
-}
-
-.room-card-img {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.room-card-img.loaded {
-    opacity: 1;
 }
 
 /* Responsive */

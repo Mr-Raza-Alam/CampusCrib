@@ -9,9 +9,19 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { currentUser, userProfile, logout } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const menuRef = useRef(null);
 
     const isActive = (path) => location.pathname === path;
+
+    // Track scroll for navbar shadow
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 10);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     // Close menu on route change
     useEffect(() => {
@@ -39,21 +49,20 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="navbar">
+        <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
             <div className="navbar-container">
                 <Link to="/" className="navbar-brand">
-                    <img src="/Icon_CC.png" alt="CampusCrib" className="brand-logo" />
-                    <span className="brand-text">CampusCrib</span>
+                    <img src="/cc_logo.png" alt="CampusCrib" className="brand-logo" />
                 </Link>
 
                 {/* Desktop Nav Links */}
                 <div className="navbar-links">
-                    <Link to="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>
-                        Home
-                    </Link>
                     <Link to="/listings" className={`nav-link ${isActive("/listings") ? "active" : ""}`}>
-                        Browse Rooms
+                        Browse
                     </Link>
+                    <a href="/#how-it-works" className="nav-link">
+                        How it works
+                    </a>
                 </div>
 
                 {/* Desktop Actions */}
@@ -81,10 +90,10 @@ const Navbar = () => {
                                 <Link to="/my-bookings" className={`nav-link ${isActive("/my-bookings") ? "active" : ""}`}>My Bookings</Link>
                             )}
                             {userProfile?.role === "owner" && (
-                                <Link to="/owner/dashboard" className="nav-link nav-link-badge">Dashboard</Link>
+                                <Link to="/owner/dashboard" className="btn btn-dashboard">Dashboard</Link>
                             )}
                             {userProfile?.role === "admin" && (
-                                <Link to="/admin" className="nav-link nav-link-badge">Admin</Link>
+                                <Link to="/admin" className="btn btn-dashboard">Admin</Link>
                             )}
                             <button className="btn btn-outline btn-sm" onClick={handleLogout}>
                                 Logout
@@ -120,6 +129,7 @@ const Navbar = () => {
                 <div className="mobile-drawer-links">
                     <Link to="/" className={`mobile-link ${isActive("/") ? "active" : ""}`}>Home</Link>
                     <Link to="/listings" className={`mobile-link ${isActive("/listings") ? "active" : ""}`}>Browse Rooms</Link>
+                    <a href="/#how-it-works" className="mobile-link">How it works</a>
 
                     {currentUser && (
                         <>
