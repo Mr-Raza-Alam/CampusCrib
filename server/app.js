@@ -62,8 +62,11 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", message: "CampusCrib API is running" });
 });
 
-// 404 handler
+// Root or 404 handler
 app.use((req, res) => {
+    if (req.path === "/") {
+        return res.status(200).json({ message: "CampusCrib API is running! Please access the frontend at http://localhost:5173" });
+    }
     res.status(404).json({ error: "Route not found" });
 });
 
