@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getMyListings, getMyBookings, respondToBooking, deleteBooking, getProfile } from "../../services/api";
+import { getMyListings, getMyBookings, respondToBooking, deleteBooking } from "../../services/api";
 import "./Dashboard.css";
 
 const OwnerDashboard = () => {
