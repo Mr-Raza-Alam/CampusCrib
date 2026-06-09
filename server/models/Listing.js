@@ -13,10 +13,10 @@ const listingSchema = new Schema({
         type: String,
         required: [true, "Description is required"],
     },
-    image: {
+    images: [{
         url: String,
         filename: String,
-    },
+    }],
     price: {
         type: Number,
         required: [true, "Price is required"],

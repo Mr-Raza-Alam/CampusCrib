@@ -100,7 +100,7 @@ const MyBookings = () => {
                             <div key={b._id} className="student-booking-card">
                                 <div className="sb-img-wrap">
                                     <img
-                                        src={b.listing?.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
+                                        src={b.listing?.images?.[0]?.url || b.listing?.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
                                         alt={b.listing?.title || "Room"}
                                         className="sb-img"
                                     />

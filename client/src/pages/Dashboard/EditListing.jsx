@@ -64,8 +64,9 @@ const EditListing = () => {
         customRules: "",
     });
 
-    const [image, setImage] = useState(null); // only set if user picks a *new* image
-    const [imagePreview, setImagePreview] = useState(null);
+    const [existingImages, setExistingImages] = useState([]);
+    const [newImages, setNewImages] = useState([]);
+    const [newImagePreviews, setNewImagePreviews] = useState([]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
@@ -102,8 +103,10 @@ const EditListing = () => {
                     propertyRules: data.propertyRules || [],
                     customRules: data.customRules || "",
                 });
-                if (data.image && data.image.url) {
-                    setImagePreview(data.image.url); // Show existing cloud image
+                if (data.images && data.images.length > 0) {
+                    setExistingImages(data.images);
+                } else if (data.image && data.image.url) {
+                    setExistingImages([data.image]);
                 }
             } catch (err) {
                 console.error(err);
@@ -179,9 +182,15 @@ const EditListing = () => {
     };
 
     const handleImageChange = async (e) => {
-        const file = e.target.files[0];
-        if (file && validateFile(file)) {
-            await compressAndSetImage(file);
+        const files = Array.from(e.target.files);
+        if (existingImages.length + newImages.length + files.length > 5) {
+            setError("You can only have up to 5 images total.");
+            return;
+        }
+        for (const file of files) {
+            if (validateFile(file)) {
+                await compressAndAddImage(file);
+            }
         }
     };
 
@@ -201,13 +210,19 @@ const EditListing = () => {
         e.preventDefault();
         e.stopPropagation();
         e.currentTarget.classList.remove("drag-active");
-        const file = e.dataTransfer.files[0];
-        if (file && validateFile(file)) {
-            await compressAndSetImage(file);
+        const files = Array.from(e.dataTransfer.files);
+        if (existingImages.length + newImages.length + files.length > 5) {
+            setError("You can only have up to 5 images total.");
+            return;
+        }
+        for (const file of files) {
+            if (validateFile(file)) {
+                await compressAndAddImage(file);
+            }
         }
     };
 
-    const compressAndSetImage = async (file) => {
+    const compressAndAddImage = async (file) => {
         try {
             const options = {
                 maxSizeMB: 1, // Max 1MB
@@ -215,8 +230,8 @@ const EditListing = () => {
                 useWebWorker: true,
             };
             const compressedFile = await imageCompression(file, options);
-            setImage(compressedFile);
-            setImagePreview(URL.createObjectURL(compressedFile));
+            setNewImages((prev) => [...prev, compressedFile]);
+            setNewImagePreviews((prev) => [...prev, URL.createObjectURL(compressedFile)]);
             setError("");
         } catch (err) {
             console.error("Compression error:", err);
@@ -225,10 +240,15 @@ const EditListing = () => {
         }
     };
 
-    const removeImage = (e) => {
+    const removeNewImage = (index, e) => {
         e.stopPropagation();
-        setImage(null);
-        setImagePreview(null);
+        setNewImages((prev) => prev.filter((_, i) => i !== index));
+        setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingImage = (index, e) => {
+        e.stopPropagation();
+        setExistingImages((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -251,9 +271,9 @@ const EditListing = () => {
                     formData.append(key, value);
                 }
             });
-            // Only append an image if the owner selected a NEW one
-            if (image) {
-                formData.append("image", image);
+            formData.append("retainedImages", JSON.stringify(existingImages));
+            if (newImages && newImages.length > 0) {
+                newImages.forEach((img) => formData.append("images", img));
             }
 
             await updateListing(id, formData);
@@ -418,7 +438,7 @@ const EditListing = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Room Image (Leave blank to keep existing image)</label>
+                            <label>Room Images (Max 5 total. Leave blank to keep existing)</label>
                             <div
                                 className="image-upload"
                                 onClick={() => document.getElementById("listing-image").click()}
@@ -426,20 +446,27 @@ const EditListing = () => {
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
                             >
-                                <input id="listing-image" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleImageChange} />
-                                {imagePreview ? (
-                                    <div className="image-preview-wrap">
-                                        <img src={imagePreview} alt="Preview" className="image-preview" />
-                                        <button type="button" className="image-remove-btn" onClick={removeImage}>×</button>
-                                        <span className="image-file-info">
-                                            {image ? `${image.name} (${(image.size / 1024).toFixed(0)} KB)` : "Existing Cloudinary Image"}
-                                        </span>
+                                <input id="listing-image" type="file" multiple accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleImageChange} />
+                                {(existingImages.length > 0 || newImagePreviews.length > 0) ? (
+                                    <div className="image-previews-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+                                        {existingImages.map((img, index) => (
+                                            <div key={index} className="image-preview-wrap" style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                                <img src={img.url} alt="Existing" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                                                <button type="button" className="image-remove-btn" onClick={(e) => removeExistingImage(index, e)} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}>×</button>
+                                            </div>
+                                        ))}
+                                        {newImagePreviews.map((preview, index) => (
+                                            <div key={index} className="image-preview-wrap" style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                                <img src={preview} alt="New Preview" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                                                <button type="button" className="image-remove-btn" onClick={(e) => removeNewImage(index, e)} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}>×</button>
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="upload-placeholder">
                                         <span className="upload-icon">📷</span>
-                                        <p>Click or drag new image here</p>
-                                        <span className="upload-hint">PNG, JPG, WebP — max 5MB</span>
+                                        <p>Click or drag new images here</p>
+                                        <span className="upload-hint">PNG, JPG, WebP — max 5MB per image</span>
                                     </div>
                                 )}
                             </div>

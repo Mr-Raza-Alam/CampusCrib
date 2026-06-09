@@ -60,7 +60,7 @@ const MapView = ({ listings = [], center = [78.9629, 20.5937], zoom = 4.5, singl
                 // Popup HTML
                 const popupHTML = `
                     <div class="map-popup">
-                        <img src="${listing.image?.url || 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=300'}" alt="${listing.title}" />
+                        <img src="${listing.images?.[0]?.url || listing.image?.url || 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=300'}" alt="${listing.title}" />
                         <div class="map-popup-body">
                             <h4>${listing.title}</h4>
                             <p class="map-popup-location">${listing.location}</p>

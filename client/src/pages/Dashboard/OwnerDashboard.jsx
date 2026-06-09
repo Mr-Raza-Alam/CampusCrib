@@ -235,7 +235,7 @@ const OwnerDashboard = () => {
                                 {listings.map((listing) => (
                                     <div key={listing._id} className="my-listing-card">
                                         <img
-                                            src={listing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
+                                            src={listing.images?.[0]?.url || listing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
                                             alt={listing.title}
                                             className="my-listing-img"
                                         />

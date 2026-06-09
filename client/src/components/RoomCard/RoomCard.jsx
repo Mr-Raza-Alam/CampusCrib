@@ -17,7 +17,7 @@ const amenityIcons = {
 };
 
 const RoomCard = ({ listing }) => {
-    const { _id, title, image, price, location, roomType, amenities, nearbyCollege, distanceFromCollege, availableRooms } = listing;
+    const { _id, title, image, images, price, location, roomType, amenities, nearbyCollege, distanceFromCollege, availableRooms } = listing;
     const [imgLoaded, setImgLoaded] = useState(false);
     const [imgError, setImgError] = useState(false);
 
@@ -26,7 +26,7 @@ const RoomCard = ({ listing }) => {
             <div className="room-card-img-wrap">
                 {!imgLoaded && !imgError && <div className="room-card-skeleton" />}
                 <img
-                    src={image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
+                    src={images?.[0]?.url || image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
                     alt={title}
                     className={`room-card-img ${imgLoaded ? "loaded" : ""}`}
                     onLoad={() => setImgLoaded(true)}

@@ -77,8 +77,8 @@ const AddListing = () => {
                 : [...prev.propertyRules, key],
         }));
     };
-    const [image, setImage] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
+    const [images, setImages] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
@@ -139,9 +139,15 @@ const AddListing = () => {
     };
 
     const handleImageChange = async (e) => {
-        const file = e.target.files[0];
-        if (file && validateFile(file)) {
-            await compressAndSetImage(file);
+        const files = Array.from(e.target.files);
+        if (images.length + files.length > 5) {
+            setError("You can only upload up to 5 images.");
+            return;
+        }
+        for (const file of files) {
+            if (validateFile(file)) {
+                await compressAndAddImage(file);
+            }
         }
     };
 
@@ -161,13 +167,19 @@ const AddListing = () => {
         e.preventDefault();
         e.stopPropagation();
         e.currentTarget.classList.remove("drag-active");
-        const file = e.dataTransfer.files[0];
-        if (file && validateFile(file)) {
-            await compressAndSetImage(file);
+        const files = Array.from(e.dataTransfer.files);
+        if (images.length + files.length > 5) {
+            setError("You can only upload up to 5 images.");
+            return;
+        }
+        for (const file of files) {
+            if (validateFile(file)) {
+                await compressAndAddImage(file);
+            }
         }
     };
 
-    const compressAndSetImage = async (file) => {
+    const compressAndAddImage = async (file) => {
         try {
             const options = {
                 maxSizeMB: 1, // Max 1MB
@@ -175,8 +187,8 @@ const AddListing = () => {
                 useWebWorker: true,
             };
             const compressedFile = await imageCompression(file, options);
-            setImage(compressedFile);
-            setImagePreview(URL.createObjectURL(compressedFile));
+            setImages((prev) => [...prev, compressedFile]);
+            setImagePreviews((prev) => [...prev, URL.createObjectURL(compressedFile)]);
             setError("");
         } catch (err) {
             console.error("Compression error:", err);
@@ -185,10 +197,10 @@ const AddListing = () => {
         }
     };
 
-    const removeImage = (e) => {
+    const removeImage = (index, e) => {
         e.stopPropagation();
-        setImage(null);
-        setImagePreview(null);
+        setImages((prev) => prev.filter((_, i) => i !== index));
+        setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -211,8 +223,8 @@ const AddListing = () => {
                     formData.append(key, value);
                 }
             });
-            if (image) {
-                formData.append("image", image);
+            if (images && images.length > 0) {
+                images.forEach((img) => formData.append("images", img));
             }
 
             await createListing(formData);
@@ -371,7 +383,7 @@ const AddListing = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Room Image</label>
+                            <label>Room Images (Max 5)</label>
                             <div
                                 className="image-upload"
                                 onClick={() => document.getElementById("listing-image").click()}
@@ -379,18 +391,21 @@ const AddListing = () => {
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
                             >
-                                <input id="listing-image" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleImageChange} />
-                                {imagePreview ? (
-                                    <div className="image-preview-wrap">
-                                        <img src={imagePreview} alt="Preview" className="image-preview" />
-                                        <button type="button" className="image-remove-btn" onClick={removeImage}>×</button>
-                                        <span className="image-file-info">{image?.name} ({(image?.size / 1024).toFixed(0)} KB)</span>
+                                <input id="listing-image" type="file" multiple accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleImageChange} />
+                                {imagePreviews.length > 0 ? (
+                                    <div className="image-previews-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+                                        {imagePreviews.map((preview, index) => (
+                                            <div key={index} className="image-preview-wrap" style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                                <img src={preview} alt="Preview" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                                                <button type="button" className="image-remove-btn" onClick={(e) => removeImage(index, e)} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}>×</button>
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="upload-placeholder">
                                         <span className="upload-icon">📷</span>
-                                        <p>Click or drag image here</p>
-                                        <span className="upload-hint">PNG, JPG, WebP — max 5MB</span>
+                                        <p>Click or drag images here</p>
+                                        <span className="upload-hint">PNG, JPG, WebP — max 5MB per image</span>
                                     </div>
                                 )}
                             </div>

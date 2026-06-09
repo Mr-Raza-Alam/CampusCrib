@@ -116,7 +116,7 @@ const Home = () => {
                                     </div>
                                     <div className="preview-image-wrap">
                                         <img
-                                            src={previewListing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
+                                            src={previewListing.images?.[0]?.url || previewListing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400"}
                                             alt={previewListing.title}
                                             className="preview-image"
                                         />

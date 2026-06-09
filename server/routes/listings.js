@@ -81,7 +81,7 @@ router.get("/:id", async (req, res) => {
 
 // POST /api/listings — Create new listing (verified owner only, goes live immediately)
 router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
-    upload.single("image")(req, res, (err) => {
+    upload.array("images", 5)(req, res, (err) => {
         if (err) {
             console.error("Multer/Cloudinary upload error:", err);
             return res.status(400).json({ error: "Image upload failed: " + err.message });
@@ -102,14 +102,15 @@ router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
             },
         });
 
-        if (req.file) {
-            const result = await uploadToCloudinary(req.file.buffer, "CampusCrib_Image", [
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer, "CampusCrib_Image", [
                 { width: 800, height: 600, crop: "limit", quality: "auto" },
-            ]);
-            newListing.image = {
-                url: result.url,
-                filename: result.filename,
-            };
+            ]));
+            const results = await Promise.all(uploadPromises);
+            newListing.images = results.map(r => ({
+                url: r.url,
+                filename: r.filename,
+            }));
         }
 
         await newListing.save();
@@ -124,7 +125,7 @@ router.post("/", isAuthenticated, isVerifiedOwner, (req, res, next) => {
 });
 
 // PUT /api/listings/:id — Update listing (owner or admin)
-router.put("/:id", isAuthenticated, upload.single("image"), async (req, res) => {
+router.put("/:id", isAuthenticated, upload.array("images", 5), async (req, res) => {
     try {
         const listing = await Listing.findById(req.params.id);
         if (!listing) {
@@ -137,20 +138,38 @@ router.put("/:id", isAuthenticated, upload.single("image"), async (req, res) => 
 
         const updates = { ...req.body };
         
-        // If a new image is uploaded, delete the old one from Cloudinary and save the new one
-        if (req.file) {
-            if (listing.image && listing.image.filename) {
+        let retainedImages = [];
+        if (req.body.retainedImages) {
+            try {
+                retainedImages = JSON.parse(req.body.retainedImages);
+            } catch(e) {
+                console.error("Failed to parse retained images");
+            }
+        }
+
+        const currentImages = listing.images && listing.images.length > 0 ? listing.images : (listing.image ? [listing.image] : []);
+        const imagesToDelete = currentImages.filter(img => !retainedImages.some(r => r.filename === img.filename));
+
+        for (const img of imagesToDelete) {
+            if (img && img.filename) {
                 try {
-                    await cloudinary.uploader.destroy(listing.image.filename);
+                    await cloudinary.uploader.destroy(img.filename);
                 } catch (e) {
                     console.error("Failed to delete old image from Cloudinary:", e);
                 }
             }
-            const result = await uploadToCloudinary(req.file.buffer, "CampusCrib_Image", [
-                { width: 800, height: 600, crop: "limit", quality: "auto" },
-            ]);
-            updates.image = { url: result.url, filename: result.filename };
         }
+        
+        let newUploadedImages = [];
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer, "CampusCrib_Image", [
+                { width: 800, height: 600, crop: "limit", quality: "auto" },
+            ]));
+            newUploadedImages = await Promise.all(uploadPromises);
+        }
+        
+        updates.images = [...retainedImages, ...newUploadedImages.map(r => ({ url: r.url, filename: r.filename }))];
+        updates.image = undefined; // Clear old field
         
         if (req.body.coordinates) {
             updates.geometry = { type: "Point", coordinates: JSON.parse(req.body.coordinates) };

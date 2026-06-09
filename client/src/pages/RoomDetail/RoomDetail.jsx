@@ -28,6 +28,7 @@ const RoomDetail = () => {
     const [listing, setListing] = useState(null);
     const [loading, setLoading] = useState(true);
     const [bookingStatus, setBookingStatus] = useState("");
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     // Review form state
     const [reviewRating, setReviewRating] = useState(0);
     const [reviewComment, setReviewComment] = useState("");
@@ -89,6 +90,12 @@ const RoomDetail = () => {
         ? (listing.reviews.reduce((sum, r) => sum + r.rating, 0) / listing.reviews.length).toFixed(1)
         : null;
 
+    const images = listing.images?.length > 0 ? listing.images : (listing.image ? [listing.image] : [{ url: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200" }]);
+    const currentImage = images[currentImageIndex]?.url;
+
+    const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+
     return (
         <div className="room-detail">
             {/* Back Button */}
@@ -99,12 +106,23 @@ const RoomDetail = () => {
             </div>
 
             {/* Hero Image */}
-            <div className="detail-hero">
+            <div className="detail-hero" style={{ position: "relative" }}>
                 <img
-                    src={listing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200"}
+                    src={currentImage}
                     alt={listing.title}
                     className="detail-hero-img"
                 />
+                {images.length > 1 && (
+                    <>
+                        <button onClick={prevImage} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', zIndex: 10, fontSize: '20px' }}>&lt;</button>
+                        <button onClick={nextImage} style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', zIndex: 10, fontSize: '20px' }}>&gt;</button>
+                        <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+                            {images.map((_, idx) => (
+                                <div key={idx} onClick={() => setCurrentImageIndex(idx)} style={{ width: '10px', height: '10px', borderRadius: '50%', background: idx === currentImageIndex ? 'white' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }} />
+                            ))}
+                        </div>
+                    </>
+                )}
                 <div className="detail-hero-overlay">
                     <div className="container">
                         <span className="badge badge-green detail-type">{listing.roomType}</span>

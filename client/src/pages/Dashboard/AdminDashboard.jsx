@@ -356,7 +356,7 @@ const AdminDashboard = () => {
                                                 <td>
                                                     <div className="td-room">
                                                         <img
-                                                            src={listing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=80"}
+                                                            src={listing.images?.[0]?.url || listing.image?.url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=80"}
                                                             alt={listing.title}
                                                             className="td-room-img"
                                                         />
